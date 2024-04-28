@@ -5,7 +5,7 @@ Description: Shows the availability of bikes and e-bikes at a Toronto Bike Share
 Author: Jeff Aschkinasi
 """
 
-# Heavily based on Bay Wheels by Martin Strauss :D
+
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -19,7 +19,7 @@ STATUS_URL = "https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status.jso
 
 DEFAULT_STATION = '{ "display": "Queen St E / Rhodes Ave", "value": "7309"}'
 
-IMAGE_BICYCLE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACgAAAAYCAYAAACIhL/AAAAAAXNSR0IArs4c6QAAAdZJREFUWEfNlr9KA0EQxvdKwYewsLZKYxqFCILxBSzE1spGbAQLCdiENFa2Vr6AWhnUJjZWPoEPIYhVZBa/ZRxnd2dOE7zq7tiZ/e03/7YJ//xp5sg3DSG493MbeA90dHhCYGE4GsC0oX/D0cC0t2mRF0quB+QX6GwB5WZWeLLrb22Em9u7aDITBTkcB7Nu9jB+nK731lxRcy3mUG02Ixvy4YGcG+DK9U6EO1/Yj+e0QqqAcMYVe9m++rbWowb39ytA7mgyeUp83e5qeueg1jDDL2zJ7uD9IvncvF/OFk5SBU44mKxQgEIFS6jIL/kkWwKkb03FXHeIgBY4wD73LlMO1cIMODJYPHuNcPROoDn1WWOPbAmwpJyEQ3hKG5XgyF/pcBwyAmqj5+14KZ5WwnXGe/EXQqYpwSMilbO2KjDFsVPq7DgprQGcBOS5yAsNRUH/ZBewqlidiwTIwaDA6cduGldQUYNDjmuAgMz1RBKvCFjLE4w42TYkTOn2UmpVVUCtYcvWI781pTzXK+7vzwFzYazluXZo2FSLJGdsvcHA3qtiqmK0mVIlS9mta9va/eiDVsg2ofJCqpOEhwHvPIRtb9Gl3JJRKM5i6Ui7OXtzrlbt1j0+ARW1ihxQSIAMAAAAAElFTkSuQmCC")
+IMAGE_BICYCLE = base64.decode("iVBORw0KGgoAAAANSUhEUgAAACgAAAAYCAYAAACIhL/AAAAAAXNSR0IArs4c6QAAAdZJREFUWEfNlr9KA0EQxvdKwYewsLZKYxqFCILxBSzE1spGbAQLCdiENFa2Vr6AWhnUJjZWPoEPIYhVZBa/ZRxnd2dOE7zq7tiZ/e03/7YJ//xp5sg3DSG493MbeA90dHhCYGE4GsC0oX/D0cC0t2mRF0quB+QX6GwB5WZWeLLrb22Em9u7aDITBTkcB7Nu9jB+nK731lxRcy3mUG02Ixvy4YGcG+Db8VKEe+5dxnNaIVVAOOOKLZ69flvrUYP7+xUgd9Ttria+yeQpvXNQa5jhF7Zk1xnvJZ+nH7vZwkmqwAkHkxUKUKhgCRX5JZ9kS4D0ramY6w4R0AIH2POF/ZRDtTADjgxetq8iHL0TaE591tgjWwIsKSfhEJ7SRiU48lc6HIeMgNroWbneiaeVcAfvF/EXQqYpwSMilbO2KjDFsVPq7DgprQGcBOS5yAsNRUH/ZBewqlidiwTIwaDA5v1yGldQUYNDjmuAgMz1RBKvCFjLE4w42TYkTOn2UmpVVUCtYcvWI781pTzXK+7vzwFzYazluXZo2FSLJGdsvcHA3qtiqmK0mVIlS9mta9va/eiDVsg2ofJCqpOEhwHvPIRtb9Gl3JJRKM5i6Ui7OXtzrlbt1j0+ATD6iBxXHvA3AAAAAElFTkSuQmCC")
 
 IMAGE_LIGHTNING = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAp/s
@@ -42,7 +42,6 @@ def main(config):
 
     allStatuses = fetch_cached(STATUS_URL, 240)["data"]["stations"]
 
-    # Inside the main function after the modification
     if len(allStatuses) > 0:
         stationStatus = [status for status in allStatuses if status["station_id"] == station["value"]]
         if len(stationStatus) > 0:
@@ -51,13 +50,10 @@ def main(config):
             # Extract counts for mechanical bikes and e-bikes from the num_bikes_available_types field
             mechanical_bikes = stationStatus["num_bikes_available_types"]["mechanical"]
             ebikes = stationStatus["num_bikes_available_types"]["ebike"]
-
-            # You can still calculate total bikes available by summing mechanical bikes and e-bikes
             total_bikes = mechanical_bikes + ebikes
     else:
         # Handle the case when no station status is available
         fail("No station status available.")
-
 
     return render.Root(
         child = render.Column(
@@ -145,6 +141,6 @@ def fetch_cached(url, ttl):
             fail("GBFS request to %s failed with status %d", (url, res.status_code))
         data = res.json()
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.??
         cache.set(url, json.encode(data), ttl_seconds = ttl)
         return data
